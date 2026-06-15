@@ -1,0 +1,10 @@
+# Application runtime dependencies (ADR-002). Test deps are in requirements-test.txt.
+fastapi>=0.110,<1
+uvicorn[standard]>=0.27,<1
+SQLAlchemy>=2.0,<3
+pydantic[email]>=2.7,<3
+pydantic-settings>=2.2,<3
+python-dotenv>=1.0,<2
+alembic>=1.13,<2
+# PostgreSQL driver (NFR-1). SQLite (dev) needs no extra driver.
+psycopg[binary]>=3.1,<4
