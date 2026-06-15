@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: 5ed0618a97bd
+Revision ID: d13bf3046d8c
 Revises: 
-Create Date: 2026-06-15 22:07:05.310591
+Create Date: 2026-06-15 23:55:15.574091
 """
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '5ed0618a97bd'
+revision: str = 'd13bf3046d8c'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -24,14 +24,12 @@ def upgrade() -> None:
     op.create_table('api_clients',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('api_key_hash', sa.String(), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('requests_limit_per_minute', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('api_clients', schema=None) as batch_op:
-        batch_op.create_index(batch_op.f('ix_api_clients_api_key_hash'), ['api_key_hash'], unique=True)
         batch_op.create_index(batch_op.f('ix_api_clients_is_active'), ['is_active'], unique=False)
 
     op.create_table('employees',
@@ -55,6 +53,39 @@ def upgrade() -> None:
         batch_op.create_index(batch_op.f('ix_employees_is_active'), ['is_active'], unique=False)
         batch_op.create_index(batch_op.f('ix_employees_position'), ['position'], unique=False)
 
+    op.create_table('users',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('email', sa.String(), nullable=False),
+    sa.Column('password_hash', sa.String(), nullable=False),
+    sa.Column('role', sa.String(), nullable=False),
+    sa.Column('is_active', sa.Boolean(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=False),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('users', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_users_email'), ['email'], unique=True)
+        batch_op.create_index(batch_op.f('ix_users_is_active'), ['is_active'], unique=False)
+        batch_op.create_index(batch_op.f('ix_users_role'), ['role'], unique=False)
+
+    op.create_table('api_keys',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('client_id', sa.Integer(), nullable=False),
+    sa.Column('key_id', sa.String(), nullable=False),
+    sa.Column('secret_hash', sa.String(), nullable=False),
+    sa.Column('prefix', sa.String(), nullable=False),
+    sa.Column('is_active', sa.Boolean(), nullable=False),
+    sa.Column('last_used_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('expires_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=False),
+    sa.ForeignKeyConstraint(['client_id'], ['api_clients.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('api_keys', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_api_keys_client_id'), ['client_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_api_keys_is_active'), ['is_active'], unique=False)
+        batch_op.create_index(batch_op.f('ix_api_keys_key_id'), ['key_id'], unique=True)
+
     op.create_table('audit_logs',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('client_id', sa.Integer(), nullable=True),
@@ -72,6 +103,21 @@ def upgrade() -> None:
         batch_op.create_index(batch_op.f('ix_audit_logs_client_id'), ['client_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_audit_logs_created_at'), ['created_at'], unique=False)
         batch_op.create_index(batch_op.f('ix_audit_logs_success'), ['success'], unique=False)
+
+    op.create_table('external_identities',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('source_system', sa.String(), nullable=False),
+    sa.Column('external_id', sa.String(), nullable=False),
+    sa.Column('employee_id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=False),
+    sa.ForeignKeyConstraint(['employee_id'], ['employees.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('source_system', 'external_id', name='uq_external_identity')
+    )
+    with op.batch_alter_table('external_identities', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_external_identities_employee_id'), ['employee_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_external_identities_external_id'), ['external_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_external_identities_source_system'), ['source_system'], unique=False)
 
     op.create_table('integration_requests',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -131,6 +177,12 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_integration_requests_client_id'))
 
     op.drop_table('integration_requests')
+    with op.batch_alter_table('external_identities', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_external_identities_source_system'))
+        batch_op.drop_index(batch_op.f('ix_external_identities_external_id'))
+        batch_op.drop_index(batch_op.f('ix_external_identities_employee_id'))
+
+    op.drop_table('external_identities')
     with op.batch_alter_table('audit_logs', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_audit_logs_success'))
         batch_op.drop_index(batch_op.f('ix_audit_logs_created_at'))
@@ -138,6 +190,18 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_audit_logs_action'))
 
     op.drop_table('audit_logs')
+    with op.batch_alter_table('api_keys', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_api_keys_key_id'))
+        batch_op.drop_index(batch_op.f('ix_api_keys_is_active'))
+        batch_op.drop_index(batch_op.f('ix_api_keys_client_id'))
+
+    op.drop_table('api_keys')
+    with op.batch_alter_table('users', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_users_role'))
+        batch_op.drop_index(batch_op.f('ix_users_is_active'))
+        batch_op.drop_index(batch_op.f('ix_users_email'))
+
+    op.drop_table('users')
     with op.batch_alter_table('employees', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_employees_position'))
         batch_op.drop_index(batch_op.f('ix_employees_is_active'))
@@ -149,7 +213,6 @@ def downgrade() -> None:
     op.drop_table('employees')
     with op.batch_alter_table('api_clients', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_api_clients_is_active'))
-        batch_op.drop_index(batch_op.f('ix_api_clients_api_key_hash'))
 
     op.drop_table('api_clients')
     # ### end Alembic commands ###
