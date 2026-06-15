@@ -61,6 +61,7 @@ ADR-007. Добавлена колонка `employees.external_id` (Q-8). Alembi
 ---
 
 ## Index
+- 2026-06-15 — Финализация (Слайс 5): API-доки, Postman, OpenAPI, ответы §43–52 ([[IMPLEMENTATION_LEDGER]]).
 - 2026-06-15 — Реализация: три модуля на FastAPI, контур green (55/55).
 - 2026-06-15 — Bootstrap: документация + контур API-тестов.
 

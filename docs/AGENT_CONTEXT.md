@@ -1,6 +1,6 @@
 # AGENT_CONTEXT
 <!-- Auto-maintained snapshot. Update after each meaningful state change. -->
-<!-- Last updated: 2026-06-15 — реализация: 3 модуля на FastAPI готовы, весь контур green (55/55). -->
+<!-- Last updated: 2026-06-15 — реализация + финализация: 3 модуля green (55/55), API-доки/Postman/OpenAPI готовы. -->
 <!-- Obsidian hub: этот файл ссылается на все крупные доки; все доки ссылаются сюда. -->
 
 ## Цель продукта

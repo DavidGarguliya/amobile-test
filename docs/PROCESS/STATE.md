@@ -21,9 +21,10 @@
 - Ожидается ревью/мерж `feat/next-stage-baseline` → `main` через PR.
 
 ## Next steps
-1. Слайс 5 — финализация: README-примеры запросов/ответов, Postman (опц.), ответы на §43–52, индексы.
+1. ✅ Слайс 5 — финализация (примеры, Postman, OpenAPI, ответы §43–52, README) — выполнено.
 2. Подтвердить Q-1..Q-8 у заказчика; при изменениях — обновить ADR/тесты.
-3. Улучшения: admin-auth (Q-4), очередь обработки, Redis rate limit, БД-лок для process (§45).
+3. Ревью/мерж PR `feat/next-stage-baseline` → `main`.
+4. Улучшения: admin-auth (Q-4), очередь обработки, Redis rate limit, БД-лок для process (§45).
 
 ---
 
