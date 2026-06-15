@@ -68,3 +68,23 @@ tests/api/
 
 Без запущенной реализации полный прогон ожидаемо **red** (нет сервиса по `API_BASE_URL`). Это
 корректно для типа B. `pytest --collect-only` должен проходить всегда — это гейт сборки контура.
+
+## Allure-отчёт
+
+Каждый тест размечен Allure (epic/feature/story/title/severity + tag по ID требования). Шаги и
+вложения (request params/body/headers с маскированием секретов, response status/body) добавляются
+автоматически на уровне POM-клиента (`BaseApiClient`), поэтому видны в каждом кейсе.
+
+```bash
+# собрать результаты во время прогона
+API_BASE_URL=http://localhost:8000 pytest -q --alluredir=allure-results
+
+# вариант 1: открыть отчёт во временном веб-сервере (нужен Allure CLI)
+allure serve allure-results
+
+# вариант 2: сгенерировать статический HTML
+allure generate allure-results -o allure-report --clean && allure open allure-report
+```
+
+Allure CLI: `brew install allure` (macOS) либо `npx allure-commandline`. Артефакты
+(`allure-results/`, `allure-report/`) — в `.gitignore`; в CI публикуются как artifacts (`tests.yml`).
