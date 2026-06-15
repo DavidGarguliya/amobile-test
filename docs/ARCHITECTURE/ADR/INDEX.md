@@ -12,6 +12,8 @@
 | [ADR-006](ADR-006-soft-delete-policy.md) | Политика мягкого удаления (деактивация) | Accepted |
 | [ADR-007](ADR-007-integration-processing.md) | Обработка интеграционных запросов: идемпотентность и employee_sync | Accepted |
 | [ADR-008](ADR-008-test-type-and-config.md) | Тип тест-контура (B) и конфигурация окружения | Accepted |
+| [ADR-009](ADR-009-admin-auth-rbac.md) | Авторизация админ-поверхности (JWT + RBAC) | Accepted |
+| [ADR-010](ADR-010-production-hardening.md) | Production hardening (rate limit, queue, observability) | Accepted |
 
 ---
 

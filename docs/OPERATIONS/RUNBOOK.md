@@ -42,14 +42,31 @@ pip install -r requirements.txt
 # миграции (Alembic)
 alembic upgrade head
 
-# запуск (dev)
+# запуск (dev) — на старте сидируется admin из ADMIN_EMAIL/ADMIN_PASSWORD
 uvicorn app.main:app --reload --port 8000
 
 # OpenAPI/Swagger
 open http://localhost:8000/docs
+
+# фоновый воркер обработки (опционально, требует Redis + arq)
+arq app.worker.WorkerSettings
 ```
 
 БД: PostgreSQL через `DATABASE_URL`; для упрощённого запуска допустим SQLite (NFR-1).
+
+### Аутентификация (ADR-009)
+
+```bash
+# получить JWT (admin сидируется на старте)
+curl -s -X POST http://localhost:8000/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@example.com","password":"admin12345"}'
+# далее: Authorization: Bearer <access_token> на /api/admin/* и мутациях
+```
+
+Секреты `JWT_SECRET`, `API_KEY_PEPPER`, `ADMIN_PASSWORD` обязательно переопределить в проде (env).
+Опциональные бэкенды: `REDIS_URL` (rate limit/очередь), `SENTRY_DSN` (ошибки), `LOG_JSON=true`
+(структурные логи). Зависимости — `requirements-optional.txt`.
 
 ## Проверка здоровья
 - `GET /docs` (Swagger) доступен → приложение поднято.

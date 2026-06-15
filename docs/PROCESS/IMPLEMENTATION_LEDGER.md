@@ -5,6 +5,33 @@
 
 ---
 
+## 2026-06-15 — Production hardening (best-practice пакет по Q-1..Q-8 + §45/§48/§49/§50)
+
+**Что сделано.** По запросу заказчика реализован полный production-пакет (ADR-009, ADR-010):
+
+- **Auth (Q-4):** `users` + scrypt-хеш паролей, JWT (HS256, stdlib), RBAC `require_roles`,
+  гейтинг `/api/admin/*`→admin, мутации employees/tickets→admin|operator, чтения→любой
+  аутентифицированный. Bootstrap-admin сидируется. Роутер `/api/auth/{login,me,users}`.
+- **Ключи (Q-2):** таблица `api_keys`, формат `company_live_<key_id>_<secret>`, HMAC-SHA256+pepper,
+  prefix/last_used_at/expires_at, ротация `POST /api/admin/clients/{id}/keys`.
+- **Q-7:** код `CONFLICT`/409 для нарушений уникальности (email/external_id).
+- **§45:** атомарный захват строки (`SELECT ... FOR UPDATE` на PostgreSQL) в обработке.
+- **Location-заголовки** на create; **X-RateLimit-*** + Retry-After на интеграции.
+- **Rate limit (§49):** интерфейс + InMemory/Redis-бэкенды.
+- **Q-8:** таблица `external_identities` (мульти-источник), матч external_id→email.
+- **Очередь (§48):** `TaskQueue` (Inline/Arq) + `app/worker.py` с ретраями/DLQ.
+- **Наблюдаемость (§50):** middleware X-Request-ID, JSON-логи, опц. Sentry.
+
+**Проверка.** Миграция регенерирована (`d13bf3046d8c`, 8 таблиц). Контур обновлён (auth-фикстуры,
+`AuthClient`, `test_auth`, код CONFLICT, Location/rate-limit/ротация). **61 passed ×2** против
+сервера; `--collect-only` 61. Прод-бэкенды (Redis/Arq/Sentry) — за абстракциями с in-process
+фолбэком, опциональные зависимости в `requirements-optional.txt`.
+
+**Остаётся.** Подтвердить дефолты у заказчика; интеграционно проверить Redis/Arq/Sentry-пути;
+blacklist токенов; per-resource scopes.
+
+---
+
 ## 2026-06-15 — Слайс 5: финализация (документация и артефакты)
 
 **Что сделано.** Закрыты пункты сдачи брифа §6:

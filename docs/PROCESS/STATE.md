@@ -3,14 +3,17 @@
 <!-- Текущий срез работ. Обновляется при каждом значимом изменении состояния. -->
 
 ## Сейчас в работе
-**Реализация (Слайсы 1–4 выполнены).** На ветке `feat/next-stage-baseline` реализован backend
-(FastAPI + SQLAlchemy + Alembic), все три модуля. Весь POM-контур — **green (55/55)**.
+**Реализация + production hardening выполнены.** На ветке `feat/next-stage-baseline` — backend
+(FastAPI + SQLAlchemy + Alembic), три модуля + JWT/RBAC, усиление ключей, CONFLICT/409, фикс гонки,
+rate-limit/queue/observability за абстракциями. Весь POM-контур — **green (61/61)**.
 
 ## Статус по областям
 - Документация: ✅ собрана (PRODUCT, ARCHITECTURE+ADR×8, PROCESS, OPERATIONS, QA) + IMPLEMENTATION_LEDGER.
 - Семантическая память: ✅ засеяна и обновлена.
-- Тест-контур: ✅ **55/55 passed** против живого сервера (дважды, 0 flaky). `--collect-only` проходит.
-- Приложение: ✅ `app/` (core, db, models, schemas, repositories, services, api, main), `/docs` OpenAPI.
+- Тест-контур: ✅ **61/61 passed** против живого сервера (дважды, 0 flaky). `--collect-only` проходит.
+- Приложение: ✅ `app/` (core, db, models, schemas, repositories, services, api, main, worker), `/docs` OpenAPI.
+- Безопасность: ✅ JWT+RBAC (ADR-009), ключи HMAC+pepper+ротация, CONFLICT/409, фикс гонки (§45).
+- Прод-инфра: ✅ за абстракциями (rate-limit/queue/observability), Redis/Arq/Sentry опциональны.
 - Миграции: ✅ Alembic, initial revision применяется на чистую БД (NFR-1).
 - CI: ✅ `tests.yml`.
 - Git/GitHub: bootstrap в `main`; реализация — на `feat/next-stage-baseline` (см. CHRONICLE).

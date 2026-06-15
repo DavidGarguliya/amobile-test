@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-06-15 — Production hardening (best-practice пакет)
+
+**Контекст.** По запросу заказчика реализованы best-practice варианты по Q-1..Q-8 + §45/48/49/50.
+
+**Сделано.** JWT + RBAC (ADR-009): users/scrypt/JWT, гейтинг роутеров. Ключи: `api_keys`,
+`company_live_<key_id>_<secret>`, HMAC+pepper, ротация. CONFLICT/409 (Q-7). Атомарный захват в
+обработке (§45). Location + X-RateLimit-* заголовки. RateLimiter/TaskQueue/observability за
+абстракциями с in-process фолбэком (ADR-010). Таблица `external_identities` (Q-8). Воркер `app/worker.py`.
+
+**Проверка.** Миграция `d13bf3046d8c` (8 таблиц). Контур: auth-фикстуры, `AuthClient`, `test_auth`,
+обновления. **61 passed ×2**; `--collect-only` 61.
+
+**Остаётся.** Подтверждение дефолтов; интеграционная проверка Redis/Arq/Sentry; blacklist токенов.
+
+---
+
 ## 2026-06-15 — Реализация: три модуля на FastAPI, контур green
 
 **Контекст.** После апрува («погнали») начата основная разработка по [[ROADMAP]] (Слайсы 1–4).
@@ -61,6 +77,7 @@ ADR-007. Добавлена колонка `employees.external_id` (Q-8). Alembi
 ---
 
 ## Index
+- 2026-06-15 — Production hardening: JWT/RBAC, key HMAC+rotation, CONFLICT, race-fix, queue/observability (61/61).
 - 2026-06-15 — Финализация (Слайс 5): API-доки, Postman, OpenAPI, ответы §43–52 ([[IMPLEMENTATION_LEDGER]]).
 - 2026-06-15 — Реализация: три модуля на FastAPI, контур green (55/55).
 - 2026-06-15 — Bootstrap: документация + контур API-тестов.

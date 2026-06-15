@@ -15,7 +15,8 @@
 | INV-P5 | Переходы статусов заявки следуют графу: new→{in_progress,rejected}; in_progress→{resolved,rejected}; resolved/rejected — терминальны | FR-T11 |
 | INV-P6 | Назначение исполнителя переводит заявку new→in_progress | FR-T9 |
 | INV-P7 | Переход в `resolved` обязательно заполняет resolved_at | FR-T12 |
-| INV-P8 | API-ключ хранится только в виде хеша; plaintext показывается ровно один раз при создании | FR-I2, NFR-7 |
+| INV-P8 | API-ключ хранится только как HMAC-хеш секрета (с server pepper); plaintext показывается ровно один раз; поддержана ротация | FR-I2, NFR-7, ADR-004 |
+| INV-P13 | Admin-эндпоинты (`/api/admin/*`) и мутации требуют аутентификации и роли (admin/operator); чтения — любой аутентифицированный | NFR-7, ADR-009 |
 | INV-P9 | Интеграционный запрос принимается только при валидном ключе активного клиента и в пределах лимита | FR-I5..FR-I8 |
 | INV-P10 | Каждая попытка обращения к интеграционному входу фиксируется в аудите (с ip_address и user_agent) | FR-I11, FR-I12 |
 | INV-P11 | Запрос в статусе `processed` нельзя обработать повторно (идемпотентность обработки) | FR-I17 |
@@ -35,7 +36,7 @@
 | ID | Инвариант | Источник |
 |----|-----------|----------|
 | INV-X1 | Все ошибки возвращаются единым конвертом `{error:true, code, message, details}` | NFR-2 |
-| INV-X2 | Код ошибки принадлежит фиксированному набору (VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED, FORBIDDEN, RATE_LIMIT_EXCEEDED, INVALID_STATUS_TRANSITION, ALREADY_PROCESSED, INTERNAL_ERROR) | NFR-3 |
+| INV-X2 | Код ошибки принадлежит фиксированному набору (VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED, FORBIDDEN, RATE_LIMIT_EXCEEDED, INVALID_STATUS_TRANSITION, ALREADY_PROCESSED, CONFLICT, INTERNAL_ERROR) | NFR-3, ADR-010 |
 | INV-X3 | Обработка ошибок централизована (единый обработчик), а не размазана по хендлерам | NFR-5 |
 | INV-X4 | Весь HTTP-трафик в тестах идёт через централизованный клиентский слой (BaseApiClient); спеки не дёргают httpx напрямую | ADR-001 |
 | INV-X5 | Секреты и базовый URL берутся только из окружения/конфига; хардкода секретов нет нигде | NFR-7, ADR-001 |
