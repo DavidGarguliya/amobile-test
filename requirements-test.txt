@@ -1,0 +1,6 @@
+# API test-suite dependencies (ADR-001). Product runtime deps live in a separate requirements.txt
+# once implementation starts (ADR-002).
+pytest>=8.0,<9
+httpx>=0.27,<1
+pydantic[email]>=2.7,<3
+python-dotenv>=1.0,<2

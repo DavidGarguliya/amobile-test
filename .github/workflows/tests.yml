@@ -1,0 +1,38 @@
+name: tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  collect:
+    name: Collect suite (TDD build gate)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: pip install -r requirements-test.txt
+      - name: Collect-only (must pass even without a running API — type B)
+        run: pytest --collect-only -q
+
+  e2e:
+    name: Full run against a reachable API
+    needs: collect
+    # Runs only when a base URL of a reachable service is configured as a repo variable.
+    if: ${{ vars.API_BASE_URL != '' }}
+    runs-on: ubuntu-latest
+    env:
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: pip install -r requirements-test.txt
+      - name: Run API tests
+        run: pytest -q
