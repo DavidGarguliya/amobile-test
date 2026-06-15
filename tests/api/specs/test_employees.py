@@ -13,7 +13,6 @@ from tests.api.schemas.employee import EmployeeOut
 from tests.api.utils.allure_meta import EPIC_EMPLOYEES
 from tests.api.utils.asserts import (
     assert_error_envelope,
-    assert_not_success,
     assert_pagination,
     assert_schema,
     assert_status,

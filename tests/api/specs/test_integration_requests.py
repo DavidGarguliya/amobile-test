@@ -215,6 +215,31 @@ def test_submit_empty_request_type_422(admin_clients, integration):
         assert_error_envelope(response, "VALIDATION_ERROR")
 
 
+@req("FR-I9", "FR-I11", "INV-P10")
+@allure.epic(EPIC_INTEGRATION)
+@allure.feature("Приём интеграционного запроса (авторизация и лимиты)")
+@allure.story("Отклонённый по валидации запрос всё равно аудируется")
+@allure.title("Интеграция с пустым request_type: 422 фиксируется в аудите (success=false)")
+@allure.severity(allure.severity_level.NORMAL)
+@pytest.mark.negative
+def test_submit_empty_request_type_is_audited(admin_clients, integration, audit):
+    """Даже отклонённая валидацией попытка (пустой request_type) должна фиксироваться в аудите
+    (INV-P10): валидация выполняется после аутентификации, поэтому обращение успевает записаться
+    как неуспешное (success=false) по соответствующему клиенту."""
+    # Arrange: активный клиент
+    client_id, api_key = _new_client(admin_clients)
+    # Act: невалидный запрос (пустой request_type) с валидным ключом → 422
+    assert_status(integration.submit({"request_type": "", "payload": {}}, api_key=api_key), 422)
+    # Assert: по клиенту есть запись аудита с success=false
+    with allure.step("Проверка: в аудите клиента есть неуспешная запись об этой попытке"):
+        records = audit.list(client_id=client_id, success=False, limit=100)
+        assert_status(records, 200)
+        items = extract_items(records.json)
+        assert any(item.get("client_id") == client_id for item in items), (
+            "отклонённая валидацией попытка должна попадать в аудит (success=false)"
+        )
+
+
 @req("FR-I8", "INV-P9")
 @allure.epic(EPIC_INTEGRATION)
 @allure.feature("Приём интеграционного запроса (авторизация и лимиты)")
