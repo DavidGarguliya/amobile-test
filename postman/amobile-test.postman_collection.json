@@ -1,0 +1,188 @@
+{
+  "info": {
+    "name": "amobile-test backend",
+    "description": "Three API modules: employees, IT tickets, integration. Set collection variables base_url and api_key. See docs/API_EXAMPLES.md.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000" },
+    { "key": "api_key", "value": "company_live_xxxxxxxxxxxxx" }
+  ],
+  "item": [
+    {
+      "name": "Employees",
+      "item": [
+        {
+          "name": "Create employee",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/employees", "host": ["{{base_url}}"], "path": ["api", "employees"] },
+            "body": { "mode": "raw", "raw": "{\n  \"full_name\": \"Иванов Иван Иванович\",\n  \"position\": \"Backend Developer\",\n  \"department\": \"IT\",\n  \"phone\": \"+79401234567\",\n  \"email\": \"ivanov@example.com\"\n}" }
+          }
+        },
+        {
+          "name": "List employees",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/employees?department=IT&is_active=true&search=&page=1&limit=20",
+              "host": ["{{base_url}}"], "path": ["api", "employees"],
+              "query": [
+                { "key": "department", "value": "IT" },
+                { "key": "is_active", "value": "true" },
+                { "key": "search", "value": "" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get employee by id",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/employees/1", "host": ["{{base_url}}"], "path": ["api", "employees", "1"] } }
+        },
+        {
+          "name": "Update employee",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/employees/1", "host": ["{{base_url}}"], "path": ["api", "employees", "1"] },
+            "body": { "mode": "raw", "raw": "{\n  \"position\": \"Team Lead\"\n}" }
+          }
+        },
+        {
+          "name": "Deactivate employee",
+          "request": { "method": "PATCH", "url": { "raw": "{{base_url}}/api/employees/1/deactivate", "host": ["{{base_url}}"], "path": ["api", "employees", "1", "deactivate"] } }
+        }
+      ]
+    },
+    {
+      "name": "Tickets",
+      "item": [
+        {
+          "name": "Create ticket",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/tickets", "host": ["{{base_url}}"], "path": ["api", "tickets"] },
+            "body": { "mode": "raw", "raw": "{\n  \"employee_id\": 1,\n  \"title\": \"Не работает принтер\",\n  \"description\": \"Принтер в кабинете 204 не печатает\",\n  \"priority\": \"medium\"\n}" }
+          }
+        },
+        {
+          "name": "List tickets",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/tickets?status=new&priority=critical&page=1&limit=20",
+              "host": ["{{base_url}}"], "path": ["api", "tickets"],
+              "query": [
+                { "key": "status", "value": "new" },
+                { "key": "priority", "value": "critical" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ticket stats",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/tickets/stats", "host": ["{{base_url}}"], "path": ["api", "tickets", "stats"] } }
+        },
+        {
+          "name": "Get ticket by id",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/tickets/1", "host": ["{{base_url}}"], "path": ["api", "tickets", "1"] } }
+        },
+        {
+          "name": "Assign ticket",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/tickets/1/assign", "host": ["{{base_url}}"], "path": ["api", "tickets", "1", "assign"] },
+            "body": { "mode": "raw", "raw": "{\n  \"assigned_to\": 2\n}" }
+          }
+        },
+        {
+          "name": "Change ticket status",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/tickets/1/status", "host": ["{{base_url}}"], "path": ["api", "tickets", "1", "status"] },
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"resolved\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Integration (admin)",
+      "item": [
+        {
+          "name": "Create API client",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/admin/clients", "host": ["{{base_url}}"], "path": ["api", "admin", "clients"] },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"1C Integration\",\n  \"requests_limit_per_minute\": 60\n}" }
+          }
+        },
+        {
+          "name": "Deactivate API client",
+          "request": { "method": "PATCH", "url": { "raw": "{{base_url}}/api/admin/clients/1/deactivate", "host": ["{{base_url}}"], "path": ["api", "admin", "clients", "1", "deactivate"] } }
+        },
+        {
+          "name": "List integration requests",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/admin/integration/requests?client_id=1&status=accepted&page=1&limit=20",
+              "host": ["{{base_url}}"], "path": ["api", "admin", "integration", "requests"],
+              "query": [
+                { "key": "client_id", "value": "1" },
+                { "key": "status", "value": "accepted" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Process integration request",
+          "request": { "method": "POST", "url": { "raw": "{{base_url}}/api/admin/integration/requests/1/process", "host": ["{{base_url}}"], "path": ["api", "admin", "integration", "requests", "1", "process"] } }
+        },
+        {
+          "name": "List audit",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/admin/audit?client_id=1&success=true&page=1&limit=20",
+              "host": ["{{base_url}}"], "path": ["api", "admin", "audit"],
+              "query": [
+                { "key": "client_id", "value": "1" },
+                { "key": "success", "value": "true" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Integration (external)",
+      "item": [
+        {
+          "name": "Submit integration request",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-API-Key", "value": "{{api_key}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/integration/requests", "host": ["{{base_url}}"], "path": ["api", "integration", "requests"] },
+            "body": { "mode": "raw", "raw": "{\n  \"request_type\": \"employee_sync\",\n  \"payload\": {\n    \"external_id\": \"EMP-001\",\n    \"full_name\": \"Иванов Иван Иванович\",\n    \"department\": \"IT\",\n    \"position\": \"Developer\",\n    \"email\": \"ivanov@example.com\"\n  }\n}" }
+          }
+        }
+      ]
+    }
+  ]
+}
