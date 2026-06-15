@@ -26,6 +26,7 @@ ERROR_STATUS: dict[str, int] = {
     "RATE_LIMIT_EXCEEDED": status.HTTP_429_TOO_MANY_REQUESTS,
     "INVALID_STATUS_TRANSITION": status.HTTP_409_CONFLICT,
     "ALREADY_PROCESSED": status.HTTP_409_CONFLICT,
+    "CONFLICT": status.HTTP_409_CONFLICT,
     "INTERNAL_ERROR": status.HTTP_500_INTERNAL_SERVER_ERROR,
 }
 
@@ -60,6 +61,11 @@ def validation_error(message: str, *, field: str | None = None, **extra: Any) ->
     return ApiError("VALIDATION_ERROR", message, details=details)
 
 
+def conflict(message: str, *, field: str | None = None, **extra: Any) -> ApiError:
+    details = {"field": field, **extra} if field else (extra or None)
+    return ApiError("CONFLICT", message, details=details)
+
+
 def unauthorized(message: str = "API key missing or invalid") -> ApiError:
     return ApiError("UNAUTHORIZED", message)
 
@@ -90,9 +96,13 @@ def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(ApiError)
     async def _api_error_handler(_: Request, exc: ApiError) -> JSONResponse:
         logger.info("api_error code=%s status=%s message=%s", exc.code, exc.status_code, exc.message)
+        headers: dict[str, str] = {}
+        if exc.code == "RATE_LIMIT_EXCEEDED" and exc.details and "retry_after" in exc.details:
+            headers["Retry-After"] = str(exc.details["retry_after"])
         return JSONResponse(
             status_code=exc.status_code,
             content=_envelope(exc.code, exc.message, exc.details),
+            headers=headers or None,
         )
 
     @app.exception_handler(RequestValidationError)

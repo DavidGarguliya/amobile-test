@@ -5,12 +5,14 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.api.deps import PageParams, get_db, page_params
+from app.api.deps import PageParams, get_db, page_params, require_roles
 from app.schemas.common import Page
 from app.schemas.integration import AuditOut
 from app.services import audit as service
 
-router = APIRouter(prefix="/api/admin/audit", tags=["admin:audit"])
+router = APIRouter(
+    prefix="/api/admin/audit", tags=["admin:audit"], dependencies=[Depends(require_roles("admin"))]
+)
 
 
 @router.get("", response_model=Page[AuditOut])

@@ -5,14 +5,18 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.api.deps import PageParams, get_db, page_params
+from app.api.deps import PageParams, get_db, page_params, require_roles
 from app.schemas.common import Page
 from app.schemas.enums import RequestStatus
 from app.schemas.integration import IntegrationRequestOut, ProcessResultOut
 from app.services import integration as service
 from app.services import processing
 
-router = APIRouter(prefix="/api/admin/integration/requests", tags=["admin:integration"])
+router = APIRouter(
+    prefix="/api/admin/integration/requests",
+    tags=["admin:integration"],
+    dependencies=[Depends(require_roles("admin"))],
+)
 
 
 @router.get("", response_model=Page[IntegrationRequestOut])

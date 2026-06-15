@@ -1,11 +1,11 @@
-"""Tickets router (EP-06..EP-11)."""
+"""Tickets router (EP-06..EP-11). Reads: any authenticated; writes: admin/operator (ADR-009)."""
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
-from app.api.deps import PageParams, get_db, page_params
+from app.api.deps import PageParams, get_db, page_params, require_roles
 from app.schemas.common import Page
 from app.schemas.enums import Priority, TicketStatus
 from app.schemas.ticket import (
@@ -17,12 +17,15 @@ from app.schemas.ticket import (
 )
 from app.services import tickets as service
 
-router = APIRouter(prefix="/api/tickets", tags=["tickets"])
+router = APIRouter(prefix="/api/tickets", tags=["tickets"], dependencies=[Depends(require_roles())])
+_writer = Depends(require_roles("admin", "operator"))
 
 
-@router.post("", response_model=TicketOut, status_code=201)
-def create_ticket(payload: TicketCreate, db: Session = Depends(get_db)) -> TicketOut:
-    return service.create_ticket(db, payload)
+@router.post("", response_model=TicketOut, status_code=201, dependencies=[_writer])
+def create_ticket(payload: TicketCreate, response: Response, db: Session = Depends(get_db)) -> TicketOut:
+    ticket = service.create_ticket(db, payload)
+    response.headers["Location"] = f"/api/tickets/{ticket.id}"
+    return ticket
 
 
 @router.get("", response_model=Page[TicketOut])
@@ -57,11 +60,11 @@ def get_ticket(ticket_id: int, db: Session = Depends(get_db)) -> TicketOut:
     return service.get_ticket(db, ticket_id)
 
 
-@router.patch("/{ticket_id}/assign", response_model=TicketOut)
+@router.patch("/{ticket_id}/assign", response_model=TicketOut, dependencies=[_writer])
 def assign_ticket(ticket_id: int, payload: TicketAssign, db: Session = Depends(get_db)) -> TicketOut:
     return service.assign_ticket(db, ticket_id, payload)
 
 
-@router.patch("/{ticket_id}/status", response_model=TicketOut)
+@router.patch("/{ticket_id}/status", response_model=TicketOut, dependencies=[_writer])
 def change_status(ticket_id: int, payload: TicketStatusUpdate, db: Session = Depends(get_db)) -> TicketOut:
     return service.change_status(db, ticket_id, payload)

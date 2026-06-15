@@ -1,21 +1,24 @@
-"""Employees router (EP-01..EP-05)."""
+"""Employees router (EP-01..EP-05). Reads: any authenticated; writes: admin/operator (ADR-009)."""
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
-from app.api.deps import PageParams, get_db, page_params
+from app.api.deps import PageParams, get_db, page_params, require_roles
 from app.schemas.common import Page
 from app.schemas.employee import EmployeeCreate, EmployeeOut, EmployeeUpdate
 from app.services import employees as service
 
-router = APIRouter(prefix="/api/employees", tags=["employees"])
+router = APIRouter(prefix="/api/employees", tags=["employees"], dependencies=[Depends(require_roles())])
+_writer = Depends(require_roles("admin", "operator"))
 
 
-@router.post("", response_model=EmployeeOut, status_code=201)
-def create_employee(payload: EmployeeCreate, db: Session = Depends(get_db)) -> EmployeeOut:
-    return service.create_employee(db, payload)
+@router.post("", response_model=EmployeeOut, status_code=201, dependencies=[_writer])
+def create_employee(payload: EmployeeCreate, response: Response, db: Session = Depends(get_db)) -> EmployeeOut:
+    employee = service.create_employee(db, payload)
+    response.headers["Location"] = f"/api/employees/{employee.id}"
+    return employee
 
 
 @router.get("", response_model=Page[EmployeeOut])
@@ -42,13 +45,13 @@ def get_employee(employee_id: int, db: Session = Depends(get_db)) -> EmployeeOut
     return service.get_employee(db, employee_id)
 
 
-@router.put("/{employee_id}", response_model=EmployeeOut)
+@router.put("/{employee_id}", response_model=EmployeeOut, dependencies=[_writer])
 def update_employee(
     employee_id: int, payload: EmployeeUpdate, db: Session = Depends(get_db)
 ) -> EmployeeOut:
     return service.update_employee(db, employee_id, payload)
 
 
-@router.patch("/{employee_id}/deactivate", response_model=EmployeeOut)
+@router.patch("/{employee_id}/deactivate", response_model=EmployeeOut, dependencies=[_writer])
 def deactivate_employee(employee_id: int, db: Session = Depends(get_db)) -> EmployeeOut:
     return service.deactivate_employee(db, employee_id)

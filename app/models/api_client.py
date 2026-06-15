@@ -15,9 +15,10 @@ class ApiClient(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
-    api_key_hash: Mapped[str] = mapped_column(unique=True, index=True)
     is_active: Mapped[bool] = mapped_column(default=True, index=True)
     requests_limit_per_minute: Mapped[int] = mapped_column(default=60)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, server_default=func.now()
     )
+
+    # Keys live in the separate ``api_keys`` table (rotation support, ADR-004).
