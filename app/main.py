@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -35,8 +36,23 @@ async def lifespan(_: FastAPI):
     yield
 
 
+def _warn_insecure_secrets() -> None:
+    insecure = []
+    if settings.jwt_secret == "dev-insecure-jwt-secret-change-me":
+        insecure.append("JWT_SECRET")
+    if settings.api_key_pepper == "dev-insecure-pepper-change-me":
+        insecure.append("API_KEY_PEPPER")
+    if not settings.auth_enabled:
+        insecure.append("AUTH_ENABLED=false (auth disabled)")
+    if insecure:
+        logging.getLogger("app").warning(
+            "INSECURE configuration in use: %s — override these in production.", ", ".join(insecure)
+        )
+
+
 def create_app() -> FastAPI:
     configure_logging()
+    _warn_insecure_secrets()
     init_sentry()
     app = FastAPI(title=settings.app_name, version="2.0.0", lifespan=lifespan)
     app.add_middleware(RequestIdMiddleware)
