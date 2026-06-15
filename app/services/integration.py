@@ -10,7 +10,7 @@ import logging
 
 from sqlalchemy.orm import Session
 
-from app.core.errors import forbidden, rate_limited, unauthorized
+from app.core.errors import forbidden, rate_limited, unauthorized, validation_error
 from app.core.rate_limit import RateLimitResult, rate_limiter
 from app.core.security import parse_api_key, verify_secret
 from app.db.base import utcnow
@@ -70,7 +70,12 @@ def submit_request(
         audit(client.id, False, {"error": "RATE_LIMIT_EXCEEDED"})
         raise _rate_limit_error(result)
 
-    # 4) Persist accepted request (FR-I10) + success audit (FR-I11/I12); touch key usage.
+    # 4) Empty request_type → 422 (FR-I9). Validated here (post-auth) so the attempt is audited.
+    if not data.request_type.strip():
+        audit(client.id, False, {"error": "VALIDATION_ERROR", "field": "request_type"})
+        raise validation_error("request_type is required", field="request_type")
+
+    # 5) Persist accepted request (FR-I10) + success audit (FR-I11/I12); touch key usage.
     key.last_used_at = utcnow()
     keys_repo.save(db, key)
     request = requests_repo.create(

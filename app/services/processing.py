@@ -1,8 +1,11 @@
 """Processing of integration requests, incl. employee_sync (ADR-007, INV-P11, INV-P12).
 
-Concurrency (brief §45): the request row is claimed with ``SELECT ... FOR UPDATE`` on databases
-that support it (PostgreSQL), so two admins cannot process the same request in parallel — the second
-waits and then sees ``processed`` → 409. On SQLite (single-process dev/tests) the lock is a no-op.
+Concurrency (brief §45): the request row is claimed with ``SELECT ... FOR UPDATE`` (on databases
+that support it, e.g. PostgreSQL) and the whole processing runs in a SINGLE transaction — the inner
+employee writes use ``commit=False`` (flush only), so the row lock is held until the final commit.
+Two admins processing the same request therefore serialize: the second waits, then sees ``processed``
+→ 409. On SQLite (single writer) the lock is a no-op but the single-transaction semantics still hold.
+A ``failed`` request stays retryable; only ``processed`` is terminal.
 """
 
 from __future__ import annotations
@@ -37,22 +40,22 @@ def process_request(db: Session, request_id: int) -> tuple[IntegrationRequest, s
         raise already_processed("Request has already been processed")
 
     try:
-        message = _dispatch(db, request)
+        message = _dispatch(db, request)  # inner writes flush only (no commit) — lock held
     except ProcessingError as exc:
+        db.rollback()  # discard any partial sync work and release the lock
+        request = db.get(IntegrationRequest, request_id)
         request.status = RequestStatus.failed.value
         request.processed_at = utcnow()
         request.error_message = str(exc)
-        db.add(request)
         db.commit()
-        db.refresh(request)
-        logger.info("integration request %s failed: %s", request.id, exc)
+        logger.info("integration request %s failed: %s", request_id, exc)
         return request, str(exc)
 
     request.status = RequestStatus.processed.value
     request.processed_at = utcnow()
     request.error_message = None
     db.add(request)
-    db.commit()
+    db.commit()  # single commit: request status + employee + identity persisted atomically
     db.refresh(request)
     logger.info("integration request %s processed", request.id)
     return request, message
@@ -85,7 +88,7 @@ def _sync_employee(db: Session, payload: dict) -> None:
     if employee is not None:
         for key, value in fields.items():
             setattr(employee, key, value)
-        employees_repo.save(db, employee)
+        employees_repo.save(db, employee, commit=False)
     else:
         employee = employees_repo.create(
             db,
@@ -97,11 +100,14 @@ def _sync_employee(db: Session, payload: dict) -> None:
                 "email": email or (f"{external_id}@imported.local" if external_id else None),
                 "external_id": external_id,
             },
+            commit=False,
         )
 
     # Maintain the external identity mapping (INV-P12).
     if external_id and identities_repo.get(db, SOURCE_SYSTEM, external_id) is None:
-        identities_repo.create(db, source_system=SOURCE_SYSTEM, external_id=external_id, employee_id=employee.id)
+        identities_repo.create(
+            db, source_system=SOURCE_SYSTEM, external_id=external_id, employee_id=employee.id, commit=False
+        )
 
 
 def _match_employee(db: Session, external_id: str | None, email: str | None):

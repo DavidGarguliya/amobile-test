@@ -8,14 +8,29 @@ Usage::
     def test_status_transition_forbidden_new_to_resolved(...):
         ...
 
-The ``req`` marker is registered in ``pytest.ini``; its args are the requirement/invariant IDs.
+``req`` attaches a pytest marker (``--strict-markers`` registered in pytest.ini) AND, when Allure is
+installed, an Allure ``tag`` plus a ``requirement`` label per ID — so the IDs show up in the report.
 """
 
 from __future__ import annotations
 
 import pytest
 
+try:
+    import allure
+except ImportError:  # pragma: no cover
+    allure = None  # type: ignore[assignment]
+
 
 def req(*ids: str):
     """Attach requirement/invariant IDs to a test for traceability (TEST_PLAN §5)."""
-    return pytest.mark.req(*ids)
+
+    def decorator(func):
+        func = pytest.mark.req(*ids)(func)
+        if allure is not None:
+            for rid in ids:
+                func = allure.tag(rid)(func)
+                func = allure.label("requirement", rid)(func)
+        return func
+
+    return decorator

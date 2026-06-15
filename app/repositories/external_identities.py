@@ -17,11 +17,13 @@ def get(db: Session, source_system: str, external_id: str) -> ExternalIdentity |
     )
 
 
-def create(db: Session, *, source_system: str, external_id: str, employee_id: int) -> ExternalIdentity:
+def create(
+    db: Session, *, source_system: str, external_id: str, employee_id: int, commit: bool = True
+) -> ExternalIdentity:
     identity = ExternalIdentity(
         source_system=source_system, external_id=external_id, employee_id=employee_id
     )
     db.add(identity)
-    db.commit()
+    db.commit() if commit else db.flush()
     db.refresh(identity)
     return identity

@@ -3,30 +3,29 @@
 <!-- Текущий срез работ. Обновляется при каждом значимом изменении состояния. -->
 
 ## Сейчас в работе
-**Реализация + production hardening выполнены.** На ветке `feat/next-stage-baseline` — backend
-(FastAPI + SQLAlchemy + Alembic), три модуля + JWT/RBAC, усиление ключей, CONFLICT/409, фикс гонки,
-rate-limit/queue/observability за абстракциями. Весь POM-контур — **green (61/61)**.
+**Всё выполнено и влито в `main`.** Backend (FastAPI + SQLAlchemy + Alembic): три модуля + JWT/RBAC,
+усиление ключей, CONFLICT/409, атомарная обработка (§45), rate-limit/queue/observability за
+абстракциями, Allure-отчётность, auth-aware Postman, аудит-фиксы. Весь POM-контур — **green (62/62)**.
+Активной незавершённой работы нет.
 
 ## Статус по областям
 - Документация: ✅ собрана (PRODUCT, ARCHITECTURE+ADR×8, PROCESS, OPERATIONS, QA) + IMPLEMENTATION_LEDGER.
 - Семантическая память: ✅ засеяна и обновлена.
-- Тест-контур: ✅ **61/61 passed** против живого сервера (дважды, 0 flaky). `--collect-only` проходит.
+- Тест-контур: ✅ **62/62 passed** против живого сервера (дважды, 0 flaky). `--collect-only` проходит.
 - Приложение: ✅ `app/` (core, db, models, schemas, repositories, services, api, main, worker), `/docs` OpenAPI.
 - Безопасность: ✅ JWT+RBAC (ADR-009), ключи HMAC+pepper+ротация, CONFLICT/409, фикс гонки (§45).
 - Прод-инфра: ✅ за абстракциями (rate-limit/queue/observability), Redis/Arq/Sentry опциональны.
 - Миграции: ✅ Alembic, initial revision применяется на чистую БД (NFR-1).
-- CI: ✅ `tests.yml`.
-- Git/GitHub: bootstrap в `main`; реализация — на `feat/next-stage-baseline` (см. CHRONICLE).
+- CI: ✅ `tests.yml` (+ публикация Allure-результатов/отчёта).
+- Allure: ✅ каждый тест размечен; шаги/вложения из BaseApiClient.
+- Git/GitHub: PR #1 (реализация+hardening) и PR #2 (Allure+Postman+аудит-фиксы) squash-merged в `main`.
 
 ## Блокеры / ожидания
-- Нет блокеров. Q-1..Q-8 **подтверждены заказчиком (2026-06-16)** — DECIDED. PR #1 squash-merged
-  в `main` (см. [[CHRONICLE]]).
+- Нет блокеров. Q-1..Q-8 — DECIDED (подтверждены 2026-06-16). Всё влито в `main`.
 
-## Next steps
-1. ✅ Слайс 5 — финализация (примеры, Postman, OpenAPI, ответы §43–52, README) — выполнено.
-2. Подтвердить Q-1..Q-8 у заказчика; при изменениях — обновить ADR/тесты.
-3. Ревью/мерж PR `feat/next-stage-baseline` → `main`.
-4. Улучшения: admin-auth (Q-4), очередь обработки, Redis rate limit, БД-лок для process (§45).
+## Next steps (опционально, по запросу)
+1. Deferred-улучшения: blacklist JWT-токенов (отзыв до истечения), per-resource scopes,
+   полнотекстовый поиск (GIN/tsvector), проверка путей Redis/Arq/Sentry на реальной инфраструктуре.
 
 ---
 

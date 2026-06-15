@@ -31,7 +31,9 @@ class ClientOut(BaseModel):
 
 
 class IntegrationRequestIn(BaseModel):
-    request_type: str = Field(min_length=1)  # empty -> 422 (FR-I9)
+    # Default "" (instead of min_length=1) so an empty/missing request_type reaches the handler and
+    # is validated AFTER authentication — the attempt is then audited (FR-I9 + FR-I11/INV-P10).
+    request_type: str = ""
     payload: dict[str, Any] = Field(default_factory=dict)
 
 

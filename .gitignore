@@ -32,6 +32,10 @@ coverage.xml
 .mypy_cache/
 .ruff_cache/
 
+# Allure report artifacts (generated; published by CI)
+allure-results/
+allure-report/
+
 # IDE / OS
 .idea/
 .vscode/

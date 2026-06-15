@@ -34,5 +34,21 @@ jobs:
           python-version: "3.12"
       - name: Install test dependencies
         run: pip install -r requirements-test.txt
-      - name: Run API tests
-        run: pytest -q
+      - name: Run API tests (with Allure results)
+        run: pytest -q --alluredir=allure-results
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results
+      - name: Generate Allure report
+        if: always()
+        run: |
+          npx -y allure-commandline generate allure-results -o allure-report --clean || true
+      - name: Upload Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report

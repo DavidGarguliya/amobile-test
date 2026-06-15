@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json as _json
 import logging
+from contextlib import nullcontext
 from dataclasses import dataclass
 from typing import Any, Mapping
 
@@ -17,7 +18,31 @@ from pydantic import BaseModel
 
 from tests.api.config.settings import Settings, get_settings
 
+try:  # Allure is optional: the suite must run without it (e.g. plain pytest).
+    import allure
+except ImportError:  # pragma: no cover
+    allure = None  # type: ignore[assignment]
+
 logger = logging.getLogger("tests.api")
+
+_SENSITIVE_HEADERS = {"authorization", "x-api-key"}
+
+
+def _mask_headers(headers: Mapping[str, str]) -> dict[str, str]:
+    masked = {}
+    for key, value in headers.items():
+        masked[key] = "***" if key.lower() in _SENSITIVE_HEADERS else value
+    return masked
+
+
+def _attach_json(name: str, value: Any) -> None:
+    if allure is None:
+        return
+    try:
+        body = _json.dumps(value, ensure_ascii=False, indent=2, default=str)
+        allure.attach(body, name=name, attachment_type=allure.attachment_type.JSON)
+    except Exception:  # pragma: no cover - attachment must never break a test
+        allure.attach(str(value), name=name, attachment_type=allure.attachment_type.TEXT)
 
 
 def to_body(payload: Any) -> Any:
@@ -93,15 +118,38 @@ class BaseApiClient:
         headers: Mapping[str, str] | None = None,
     ) -> ApiResponse:
         clean_params = {k: v for k, v in (params or {}).items() if v is not None}
+        request_headers = dict(headers or {})
         logger.info("-> %s %s params=%s body=%s", method, path, clean_params or None, _safe(json))
-        response = self._client.request(
-            method,
-            path,
-            json=json,
-            params=clean_params or None,
-            headers=dict(headers or {}),
-        )
-        parsed = _parse_json(response)
+
+        step = allure.step(f"{method.upper()} {path}") if allure else nullcontext()
+        with step:
+            # Attach the request side (secrets masked).
+            if clean_params:
+                _attach_json("request params", clean_params)
+            if json is not None:
+                _attach_json("request body", _safe(json))
+            merged_headers = {**dict(self._client.headers), **request_headers}
+            _attach_json("request headers", _mask_headers(merged_headers))
+
+            response = self._client.request(
+                method,
+                path,
+                json=json,
+                params=clean_params or None,
+                headers=request_headers,
+            )
+            parsed = _parse_json(response)
+
+            # Attach the response side.
+            if allure is not None:
+                allure.attach(
+                    str(response.status_code), name="response status", attachment_type=allure.attachment_type.TEXT
+                )
+                if parsed is not None:
+                    _attach_json("response body", parsed)
+                elif response.text:
+                    allure.attach(response.text, name="response body", attachment_type=allure.attachment_type.TEXT)
+
         logger.info("<- %s %s %s", method, path, response.status_code)
         return ApiResponse(
             status_code=response.status_code,

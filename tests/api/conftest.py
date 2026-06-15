@@ -135,3 +135,22 @@ def new_ticket(
 def active_client_key(admin_clients: AdminClientsClient, settings: Settings) -> dict[str, Any]:
     """Create an API client and return the create response (contains client_id + plaintext api_key)."""
     return _created_body(admin_clients.create(factories.client_payload()), settings)
+
+
+def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
+    """Write Allure ``environment.properties`` into the results dir (shown in the report's Environment)."""
+    results_dir = getattr(session.config.option, "allure_report_dir", None)
+    if not results_dir:
+        return
+    import os
+
+    cfg = get_settings()
+    os.makedirs(results_dir, exist_ok=True)
+    lines = [
+        f"API_BASE_URL={cfg.base_url}",
+        "Auth=JWT bearer (admin)",
+        f"API_Key_Header={cfg.api_key_header}",
+        f"Expect_Created_Code={cfg.expect_created_code}",
+    ]
+    with open(os.path.join(results_dir, "environment.properties"), "w", encoding="utf-8") as fh:
+        fh.write("\n".join(lines) + "\n")
