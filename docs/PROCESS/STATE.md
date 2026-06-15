@@ -5,12 +5,12 @@
 ## Сейчас в работе
 **Реализация + production hardening выполнены.** На ветке `feat/next-stage-baseline` — backend
 (FastAPI + SQLAlchemy + Alembic), три модуля + JWT/RBAC, усиление ключей, CONFLICT/409, фикс гонки,
-rate-limit/queue/observability за абстракциями. Весь POM-контур — **green (61/61)**.
+rate-limit/queue/observability за абстракциями. Весь POM-контур — **green (62/62)**.
 
 ## Статус по областям
 - Документация: ✅ собрана (PRODUCT, ARCHITECTURE+ADR×8, PROCESS, OPERATIONS, QA) + IMPLEMENTATION_LEDGER.
 - Семантическая память: ✅ засеяна и обновлена.
-- Тест-контур: ✅ **61/61 passed** против живого сервера (дважды, 0 flaky). `--collect-only` проходит.
+- Тест-контур: ✅ **62/62 passed** против живого сервера (дважды, 0 flaky). `--collect-only` проходит.
 - Приложение: ✅ `app/` (core, db, models, schemas, repositories, services, api, main, worker), `/docs` OpenAPI.
 - Безопасность: ✅ JWT+RBAC (ADR-009), ключи HMAC+pepper+ротация, CONFLICT/409, фикс гонки (§45).
 - Прод-инфра: ✅ за абстракциями (rate-limit/queue/observability), Redis/Arq/Sentry опциональны.

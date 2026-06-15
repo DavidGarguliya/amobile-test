@@ -4,7 +4,7 @@ Backend-сервис из трёх REST API-модулей: справочник
 защищённое интеграционное API для внешних систем. Все три модуля **реализованы** (FastAPI +
 SQLAlchemy + Alembic) с production-обвязкой: JWT-аутентификация + RBAC, единый конверт ошибок,
 rate limiting, очередь обработки и наблюдаемость. Исполняемый контур API-тестов (POM, pytest +
-httpx) — **green, 61/61**, с полным **Allure-отчётом**.
+httpx) — **green, 62/62**, с полным **Allure-отчётом**.
 
 > Источник требований — [docs/PRODUCT/SOURCE_BRIEF.md](docs/PRODUCT/SOURCE_BRIEF.md) (дословная копия).
 
@@ -103,7 +103,7 @@ uvicorn app.main:app --port 8000     # запуск; Swagger на http://localho
 pip install -r requirements-test.txt
 cp .env.example .env                 # API_BASE_URL=http://localhost:8000 (см. .env.example)
 pytest --collect-only                # сборка контура (гейт)
-API_BASE_URL=http://localhost:8000 pytest -q --alluredir=allure-results   # → 61 passed + результаты Allure
+API_BASE_URL=http://localhost:8000 pytest -q --alluredir=allure-results   # → 62 passed + результаты Allure
 allure serve allure-results          # открыть отчёт (Allure CLI: brew install allure)
 ```
 
@@ -122,7 +122,7 @@ allure serve allure-results          # открыть отчёт (Allure CLI: br
 ## Статус
 
 Все три модуля + production-обвязка (JWT/RBAC, усиление ключей, rate limit, очередь, наблюдаемость)
-реализованы и влиты в `main`; контур тестов **green (61/61)** с Allure-отчётом. Решения по
+реализованы и влиты в `main`; контур тестов **green (62/62)** с Allure-отчётом. Решения по
 Q-1..Q-8 — **DECIDED** (подтверждены). Документы: [TECH_DECISIONS](docs/PRODUCT/TECH_DECISIONS.md),
 [ADDITIONAL_QUESTIONS](docs/PRODUCT/ADDITIONAL_QUESTIONS.md), [IMPLEMENTATION_LEDGER](docs/PROCESS/IMPLEMENTATION_LEDGER.md).
 

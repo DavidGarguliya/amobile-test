@@ -1,6 +1,6 @@
 # AGENT_CONTEXT
 <!-- Auto-maintained snapshot. Update after each meaningful state change. -->
-<!-- Last updated: 2026-06-16 — Allure-отчётность подключена (epic/feature/story/severity/steps/attachments); контур green (61/61). -->
+<!-- Last updated: 2026-06-16 — Allure-отчётность подключена (epic/feature/story/severity/steps/attachments); контур green (62/62). -->
 <!-- Obsidian hub: этот файл ссылается на все крупные доки; все доки ссылаются сюда. -->
 
 ## Цель продукта
@@ -36,7 +36,7 @@ Backend-сервис из трёх REST API-модулей: (1) справочн
 ## Текущее состояние
 Реализация + production hardening: backend FastAPI (слои `api/services/repositories/models`) для
 всех трёх модулей + JWT/RBAC (ADR-009), ключи HMAC+pepper+ротация, CONFLICT/409, фикс гонки (§45),
-rate-limit/queue/observability за абстракциями (ADR-010). Весь POM-контур **green (61/61, 0 flaky)**
+rate-limit/queue/observability за абстракциями (ADR-010). Весь POM-контур **green (62/62, 0 flaky)**
 с Allure-отчётом (epic/feature/story/severity/tags + шаги/вложения из BaseApiClient). Реализация
 влита в `main`; Allure/Postman-доработки — на ветке `feat/allure-reporting`. Детали —
 [[IMPLEMENTATION_LEDGER]]. Запуск: `uvicorn app.main:app` (логин admin@example.com/admin12345 → JWT;

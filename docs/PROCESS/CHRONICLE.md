@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-06-16 — Аудит проекта + фиксы
+
+**Сделано.** Независимый аудит (контур + httpx-пробы + инспекция секретов в БД) → критических багов
+нет. Исправлено: §45 (единая транзакция + FOR UPDATE, репозитории получили `commit`-флаг);
+аудит-422 (пустой request_type валидируется после auth → пишется в аудит); WARNING при дефолтных
+секретах; убран неиспользуемый импорт. Добавлен тест аудита-422. Контур **62 passed**.
+
+**Осознанно оставлено:** PUT как частичное обновление; уникальность email для деактивированных;
+кеп лимита ≤100; in-memory rate limit без Redis. Детали — [[IMPLEMENTATION_LEDGER]].
+
+---
+
 ## 2026-06-16 — Allure-отчётность + auth-aware Postman
 
 **Сделано.** Подключён Allure (epic/feature/story/title/severity + tag по ID; шаги/вложения из
@@ -103,6 +115,8 @@ ADR-007. Добавлена колонка `employees.external_id` (Q-8). Alembi
 ---
 
 ## Index
+- 2026-06-16 — Аудит проекта + фиксы (§45 atomic, аудит-422, secret-warning); контур 62/62.
+- 2026-06-16 — Allure-отчётность + auth-aware Postman.
 - 2026-06-16 — Подтверждение дефолтов Q-1..Q-8 (DECIDED) и squash-merge PR #1 в main.
 - 2026-06-15 — Production hardening: JWT/RBAC, key HMAC+rotation, CONFLICT, race-fix, queue/observability (61/61).
 - 2026-06-15 — Финализация (Слайс 5): API-доки, Postman, OpenAPI, ответы §43–52 ([[IMPLEMENTATION_LEDGER]]).
