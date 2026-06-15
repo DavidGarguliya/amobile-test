@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-06-16 — Подтверждение дефолтов Q-1..Q-8 и мерж PR #1
+
+**Контекст.** Заказчик подтвердил решения по Q-1..Q-8 (теперь DECIDED, не открытые вопросы) и
+дал команду смержить.
+
+**Сделано.** Статус Q-1..Q-8 переведён в DECIDED в [[REQUIREMENTS]], [[AGENT_CONTEXT]] и памяти
+([[assumptions-to-confirm]]). PR #1 (`feat/next-stage-baseline` → `main`) **squash-merged**; `main`
+теперь содержит весь deliverable (3 модуля + production hardening, контур green 61/61).
+
+**Остаётся.** Follow-up: интеграционная проверка Redis/Arq/Sentry; blacklist токенов; per-resource scopes.
+
+---
+
 ## 2026-06-15 — Production hardening (best-practice пакет)
 
 **Контекст.** По запросу заказчика реализованы best-practice варианты по Q-1..Q-8 + §45/48/49/50.
@@ -77,6 +90,7 @@ ADR-007. Добавлена колонка `employees.external_id` (Q-8). Alembi
 ---
 
 ## Index
+- 2026-06-16 — Подтверждение дефолтов Q-1..Q-8 (DECIDED) и squash-merge PR #1 в main.
 - 2026-06-15 — Production hardening: JWT/RBAC, key HMAC+rotation, CONFLICT, race-fix, queue/observability (61/61).
 - 2026-06-15 — Финализация (Слайс 5): API-доки, Postman, OpenAPI, ответы §43–52 ([[IMPLEMENTATION_LEDGER]]).
 - 2026-06-15 — Реализация: три модуля на FastAPI, контур green (55/55).

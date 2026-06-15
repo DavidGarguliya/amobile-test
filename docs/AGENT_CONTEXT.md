@@ -41,10 +41,10 @@ rate-limit/queue/observability за абстракциями (ADR-010). Весь
 `uvicorn app.main:app` (логин admin@example.com/admin12345 → JWT; OpenAPI на `/docs`). Фоновый
 воркер: `arq app.worker.WorkerSettings` (при Redis).
 
-## Открытые вопросы
-Q-1 тип id; Q-2 формат/энтропия API-ключа; Q-3 окно rate limit; Q-4 admin-авторизация; Q-5 коды
-create (201/200); Q-6 `API_BASE_URL`; Q-7 код дубликата email (409/422); Q-8 хранение external_id.
-Детали и принятые `[ASSUMPTION]` — [[REQUIREMENTS]].
+## Решённые вопросы (подтверждены заказчиком 2026-06-16)
+Q-1 BIGINT id · Q-2 ключ HMAC+pepper+ротация · Q-3 rate limit за интерфейсом (InMemory/Redis) ·
+Q-4 JWT+RBAC · Q-5 201+Location · Q-6 base URL из env · Q-7 CONFLICT/409 · Q-8 `external_identities`.
+Открытых вопросов нет; трассировка — [[REQUIREMENTS]].
 
 ## Ключевые команды
 ```bash
