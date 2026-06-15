@@ -10,17 +10,17 @@ from sqlalchemy.orm import Session
 from app.models.employee import Employee
 
 
-def create(db: Session, data: dict[str, Any]) -> Employee:
+def create(db: Session, data: dict[str, Any], *, commit: bool = True) -> Employee:
     employee = Employee(**data)
     db.add(employee)
-    db.commit()
+    db.commit() if commit else db.flush()
     db.refresh(employee)
     return employee
 
 
-def save(db: Session, employee: Employee) -> Employee:
+def save(db: Session, employee: Employee, *, commit: bool = True) -> Employee:
     db.add(employee)
-    db.commit()
+    db.commit() if commit else db.flush()
     db.refresh(employee)
     return employee
 
