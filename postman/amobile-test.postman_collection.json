@@ -1,14 +1,53 @@
 {
   "info": {
     "name": "amobile-test backend",
-    "description": "Three API modules: employees, IT tickets, integration. Set collection variables base_url and api_key. See docs/API_EXAMPLES.md.",
+    "description": "Три API-модуля: сотрудники, IT-заявки, интеграция. Запускается ЛОКАЛЬНО (домен не нужен).\n\nКАК ПОЛЬЗОВАТЬСЯ:\n1) Поднять сервис: `uvicorn app.main:app --port 8000` (см. README). Swagger: http://localhost:8000/docs\n2) Переменная коллекции base_url уже = http://localhost:8000 (поменять во вкладке Variables при другом порту/хосте).\n3) Выполнить Auth → Login — токен сохранится в {{token}} автоматически (все защищённые запросы шлют Authorization: Bearer {{token}}).\n4) Integration (admin) → Create API client — plaintext-ключ сохранится в {{api_key}} автоматически (показывается один раз).\n5) Дальше можно дёргать любые запросы; Integration (external) использует X-API-Key {{api_key}}.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
   "variable": [
-    { "key": "base_url", "value": "http://localhost:8000" },
-    { "key": "api_key", "value": "company_live_xxxxxxxxxxxxx" }
+    { "key": "base_url", "value": "http://localhost:8000", "type": "string" },
+    { "key": "admin_email", "value": "admin@example.com", "type": "string" },
+    { "key": "admin_password", "value": "admin12345", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "api_key", "value": "", "type": "string" }
   ],
   "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (saves {{token}})",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('token', json.access_token);",
+                  "pm.test('got token', () => pm.expect(json.access_token).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/auth/login", "host": ["{{base_url}}"], "path": ["api", "auth", "login"] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}" }
+          }
+        },
+        {
+          "name": "Me",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/auth/me", "host": ["{{base_url}}"], "path": ["api", "auth", "me"] } }
+        }
+      ]
+    },
     {
       "name": "Employees",
       "item": [
@@ -26,12 +65,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/employees?department=IT&is_active=true&search=&page=1&limit=20",
+              "raw": "{{base_url}}/api/employees?department=IT&is_active=true&page=1&limit=20",
               "host": ["{{base_url}}"], "path": ["api", "employees"],
               "query": [
                 { "key": "department", "value": "IT" },
                 { "key": "is_active", "value": "true" },
-                { "key": "search", "value": "" },
                 { "key": "page", "value": "1" },
                 { "key": "limit", "value": "20" }
               ]
@@ -117,13 +155,42 @@
       "name": "Integration (admin)",
       "item": [
         {
-          "name": "Create API client",
+          "name": "Create API client (saves {{api_key}})",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('api_key', json.api_key);",
+                  "pm.test('got api_key', () => pm.expect(json.api_key).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": { "raw": "{{base_url}}/api/admin/clients", "host": ["{{base_url}}"], "path": ["api", "admin", "clients"] },
             "body": { "mode": "raw", "raw": "{\n  \"name\": \"1C Integration\",\n  \"requests_limit_per_minute\": 60\n}" }
           }
+        },
+        {
+          "name": "Rotate API key (saves {{api_key}})",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('api_key', json.api_key);"
+                ]
+              }
+            }
+          ],
+          "request": { "method": "POST", "url": { "raw": "{{base_url}}/api/admin/clients/1/keys", "host": ["{{base_url}}"], "path": ["api", "admin", "clients", "1", "keys"] } }
         },
         {
           "name": "Deactivate API client",
@@ -171,8 +238,9 @@
       "name": "Integration (external)",
       "item": [
         {
-          "name": "Submit integration request",
+          "name": "Submit integration request (uses {{api_key}})",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "POST",
             "header": [
               { "key": "Content-Type", "value": "application/json" },
