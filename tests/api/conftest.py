@@ -15,6 +15,7 @@ import pytest
 from tests.api.clients.admin_clients_client import AdminClientsClient
 from tests.api.clients.admin_integration_client import AdminIntegrationClient
 from tests.api.clients.audit_client import AuditClient
+from tests.api.clients.auth_client import AuthClient
 from tests.api.clients.base_client import ApiResponse, BaseApiClient
 from tests.api.clients.employees_client import EmployeesClient
 from tests.api.clients.integration_client import IntegrationClient
@@ -41,6 +42,40 @@ def base_client(settings: Settings) -> Iterator[BaseApiClient]:
         yield client
     finally:
         client.close()
+
+
+@pytest.fixture
+def anon_client(settings: Settings) -> Iterator[BaseApiClient]:
+    """A client with no bearer token (for authentication-failure specs)."""
+    client = BaseApiClient(settings=settings)
+    try:
+        yield client
+    finally:
+        client.close()
+
+
+# -- authentication (ADR-009) ----------------------------------------------------------------
+@pytest.fixture(scope="session")
+def admin_token(base_client: BaseApiClient, settings: Settings) -> str:
+    response = base_client.post(
+        "/api/auth/login",
+        json={"email": settings.admin_email, "password": settings.admin_password},
+    )
+    assert response.status_code == 200, f"admin login failed: {response.status_code} {response.text}"
+    return response.json["access_token"]
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _apply_admin_auth(base_client: BaseApiClient, admin_token: str) -> Iterator[None]:
+    """Authenticate the shared client as admin for the whole session."""
+    base_client.set_auth(admin_token)
+    yield
+    base_client.set_auth(None)
+
+
+@pytest.fixture
+def auth(base_client: BaseApiClient) -> AuthClient:
+    return AuthClient(base_client)
 
 
 # -- resource service objects ----------------------------------------------------------------

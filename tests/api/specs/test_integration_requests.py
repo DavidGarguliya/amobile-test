@@ -50,6 +50,17 @@ def test_submit_request_accepted(admin_clients, integration):
     assert_status(response, *CREATED)
 
 
+@req("FR-I8", "NFR-7")
+@pytest.mark.positive
+@pytest.mark.contract
+def test_submit_returns_rate_limit_headers(admin_clients, integration):
+    _, api_key = _new_client(admin_clients)
+    response = integration.submit(factories.employee_sync_payload(), api_key=api_key)
+    assert_status(response, *CREATED)
+    assert response.headers.get("X-RateLimit-Limit"), "ожидались заголовки X-RateLimit-*"
+    assert response.headers.get("X-RateLimit-Remaining") is not None
+
+
 @req("FR-I10", "FR-I13")
 @pytest.mark.positive
 def test_submit_persists_and_is_listed(admin_clients, integration, admin_integration):

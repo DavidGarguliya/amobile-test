@@ -21,5 +21,9 @@ class AdminClientsClient:
     def get(self, client_id: int | str) -> ApiResponse:
         return self._base.get(f"{BASE}/{client_id}", headers=self._headers)
 
+    def rotate_key(self, client_id: int | str) -> ApiResponse:
+        """POST /api/admin/clients/{id}/keys — issue a new key (rotation, shown once)."""
+        return self._base.post(f"{BASE}/{client_id}/keys", headers=self._headers)
+
     def deactivate(self, client_id: int | str) -> ApiResponse:
         return self._base.patch(f"{BASE}/{client_id}/deactivate", headers=self._headers)

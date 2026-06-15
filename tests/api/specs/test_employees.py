@@ -38,6 +38,8 @@ def test_create_employee_returns_created(employees):
     body = assert_schema(response.json, EmployeeOut)
     assert body.is_active is True
     assert body.email == payload.email
+    # REST best practice: 201 carries a Location header pointing at the new resource.
+    assert response.headers.get("Location", "").endswith(f"/api/employees/{body.id}")
 
 
 @req("FR-E10")
@@ -73,9 +75,9 @@ def test_create_employee_duplicate_email(employees):
     duplicate["email"] = first.email
     # Act
     response = employees.create(duplicate)
-    # Assert: uniqueness violation (409 or 422 — Q-7), unified envelope.
-    assert_not_success(response)
-    assert_error_envelope(response)
+    # Assert: uniqueness conflict → 409 CONFLICT (Q-7), unified envelope.
+    assert_status(response, 409)
+    assert_error_envelope(response, "CONFLICT")
 
 
 @req("FR-E2")

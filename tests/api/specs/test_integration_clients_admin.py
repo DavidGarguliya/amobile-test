@@ -51,3 +51,12 @@ def test_create_two_clients_keys_are_distinct(admin_clients):
 def test_deactivate_client(admin_clients, active_client_key):
     response = admin_clients.deactivate(active_client_key["client_id"])
     assert_status(response, 200)
+
+
+@req("FR-I2", "NFR-7")
+@pytest.mark.positive
+def test_rotate_client_key_issues_new_key(admin_clients, active_client_key):
+    response = admin_clients.rotate_key(active_client_key["client_id"])
+    assert_status(response, *CREATED)
+    rotated = assert_schema(response.json, ClientCreatedOut)
+    assert rotated.api_key and rotated.api_key != active_client_key["api_key"], "ротация должна выдать новый ключ"

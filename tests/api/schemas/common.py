@@ -21,6 +21,7 @@ ERROR_CODES: frozenset[str] = frozenset(
         "RATE_LIMIT_EXCEEDED",
         "INVALID_STATUS_TRANSITION",
         "ALREADY_PROCESSED",
+        "CONFLICT",
         "INTERNAL_ERROR",
     }
 )

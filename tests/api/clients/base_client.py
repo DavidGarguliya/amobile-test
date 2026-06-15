@@ -65,6 +65,13 @@ class BaseApiClient:
     def settings(self) -> Settings:
         return self._settings
 
+    def set_auth(self, token: str | None) -> None:
+        """Set/clear the default bearer token applied to every request (ADR-009)."""
+        if token:
+            self._client.headers["Authorization"] = f"Bearer {token}"
+        else:
+            self._client.headers.pop("Authorization", None)
+
     # -- lifecycle ---------------------------------------------------------------------------
     def close(self) -> None:
         self._client.close()
