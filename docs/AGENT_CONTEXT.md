@@ -37,10 +37,10 @@ Backend-сервис из трёх REST API-модулей: (1) справочн
 Реализация + production hardening: backend FastAPI (слои `api/services/repositories/models`) для
 всех трёх модулей + JWT/RBAC (ADR-009), ключи HMAC+pepper+ротация, CONFLICT/409, фикс гонки (§45),
 rate-limit/queue/observability за абстракциями (ADR-010). Весь POM-контур **green (62/62, 0 flaky)**
-с Allure-отчётом (epic/feature/story/severity/tags + шаги/вложения из BaseApiClient). Реализация
-влита в `main`; Allure/Postman-доработки — на ветке `feat/allure-reporting`. Детали —
-[[IMPLEMENTATION_LEDGER]]. Запуск: `uvicorn app.main:app` (логин admin@example.com/admin12345 → JWT;
-OpenAPI на `/docs`). Отчёт: `pytest --alluredir=allure-results && allure serve allure-results`.
+с Allure-отчётом (epic/feature/story/severity/tags + шаги/вложения из BaseApiClient). Всё влито в
+`main` (реализация + hardening + Allure + Postman + аудит-фиксы). Детали — [[IMPLEMENTATION_LEDGER]].
+Запуск: `uvicorn app.main:app` (логин admin@example.com/admin12345 → JWT; OpenAPI на `/docs`).
+Отчёт: `pytest --alluredir=allure-results && allure serve allure-results`.
 
 ## Решённые вопросы (подтверждены заказчиком 2026-06-16)
 Q-1 BIGINT id · Q-2 ключ HMAC+pepper+ротация · Q-3 rate limit за интерфейсом (InMemory/Redis) ·
