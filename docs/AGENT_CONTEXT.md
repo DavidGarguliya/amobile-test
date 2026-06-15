@@ -1,6 +1,6 @@
 # AGENT_CONTEXT
 <!-- Auto-maintained snapshot. Update after each meaningful state change. -->
-<!-- Last updated: 2026-06-15 — bootstrap: доки + контур API-тестов собраны, разработка не начата. -->
+<!-- Last updated: 2026-06-15 — реализация: 3 модуля на FastAPI готовы, весь контур green (55/55). -->
 <!-- Obsidian hub: этот файл ссылается на все крупные доки; все доки ссылаются сюда. -->
 
 ## Цель продукта
@@ -34,8 +34,10 @@ Backend-сервис из трёх REST API-модулей: (1) справочн
 `tests/README.md`.
 
 ## Текущее состояние
-bootstrap — доки и тесты собраны, основная разработка не начата. Тест-контур — **TDD red** (нет
-реализации). Следующий слайс: **Слайс 1 — каркас FastAPI** (см. [[ROADMAP]]).
+Реализация: backend на FastAPI (слои `api/services/repositories/models`, `app/`) готов для всех
+трёх модулей; Alembic-миграция применяется; весь POM-контур **green (55/55, 0 flaky)**. Работа на
+ветке `feat/next-stage-baseline`. Следующий слайс: **Слайс 5 — финализация** (см. [[ROADMAP]],
+[[IMPLEMENTATION_LEDGER]]). Запуск сервиса: `uvicorn app.main:app` (OpenAPI на `/docs`).
 
 ## Открытые вопросы
 Q-1 тип id; Q-2 формат/энтропия API-ключа; Q-3 окно rate limit; Q-4 admin-авторизация; Q-5 коды
