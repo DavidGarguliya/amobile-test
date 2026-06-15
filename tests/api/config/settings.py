@@ -55,6 +55,11 @@ class Settings:
     admin_auth_header: str = field(default_factory=lambda: _get("ADMIN_AUTH_HEADER", ""))
     admin_auth_token: str = field(default_factory=lambda: _get("ADMIN_AUTH_TOKEN", ""))
 
+    # JWT auth (ADR-009): the suite logs in with these to obtain a bearer token. Must match the
+    # server-seeded bootstrap admin (ADMIN_EMAIL / ADMIN_PASSWORD).
+    admin_email: str = field(default_factory=lambda: _get("ADMIN_EMAIL", "admin@example.com"))
+    admin_password: str = field(default_factory=lambda: _get("ADMIN_PASSWORD", "admin12345"))
+
     # The brief does not fix success codes for create operations (Q-5). Configurable expectation.
     expect_created_code: int = field(default_factory=lambda: _get_int("EXPECT_CREATED_CODE", 201))
 

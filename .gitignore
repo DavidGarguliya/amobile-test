@@ -18,6 +18,10 @@ env/
 .env.*
 !.env.example
 
+# Local databases (SQLite dev)
+*.db
+*.sqlite3
+
 # Test & tooling artifacts
 .pytest_cache/
 .cache/

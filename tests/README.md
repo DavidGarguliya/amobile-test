@@ -34,7 +34,12 @@ pytest -m contract
 | `ADMIN_AUTH_TOKEN` | значение admin-токена | пусто |
 | `EXPECT_CREATED_CODE` | ожидаемый код успешного create (Q-5) | `201` |
 | `RATE_LIMIT_PROBE_COUNT` | сколько запросов сверх лимита слать при проверке 429 | `0` (вывести) |
+| `ADMIN_EMAIL` | логин для получения JWT (должен совпадать с сидируемым admin) | `admin@example.com` |
+| `ADMIN_PASSWORD` | пароль admin для логина | `admin12345` |
 | `LOG_LEVEL` | уровень логирования контура | `INFO` |
+
+> Контур аутентифицируется как admin (JWT, ADR-009): сессионная фикстура логинится и проставляет
+> `Authorization: Bearer` на общий клиент. Интеграционный вход остаётся на `X-API-Key`.
 
 Секреты — только из окружения, без хардкода (INV-X5). `.env` git-ignored; шаблон — `.env.example`.
 

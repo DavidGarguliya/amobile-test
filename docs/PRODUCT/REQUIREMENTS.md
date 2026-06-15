@@ -123,6 +123,14 @@
 
 ## ASSUMPTIONS / OPEN QUESTIONS
 
+> **Status — DECIDED (подтверждено заказчиком 2026-06-16).** Это больше не открытые вопросы, а
+> финальные решения; реализованы best-practice варианты (ADR-009/010):
+> Q-1 BIGINT id; Q-2 ключ `company_live_<key_id>_<secret>`, HMAC+pepper, ротация (`api_keys`);
+> Q-3 rate limit за интерфейсом (InMemory/Redis), fixed window; Q-4 JWT + RBAC (admin/operator/
+> viewer); Q-5 201 + `Location`; Q-6 base URL из env; Q-7 `CONFLICT`/409; Q-8 таблица
+> `external_identities`. Записи ниже сохранены как историческая трассировка.
+
+
 - `[OPEN QUESTION] Q-1`: тип идентификаторов (`id`) — целочисленный автоинкремент (примеры в
   брифе используют `1`, `2`) против UUID. Принято `[ASSUMPTION]`: целочисленный, как в примерах.
 - `[OPEN QUESTION] Q-2`: формат и префикс API-ключа (`company_live_...`) — генерация/энтропия не
