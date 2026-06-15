@@ -1,6 +1,6 @@
 # AGENT_CONTEXT
 <!-- Auto-maintained snapshot. Update after each meaningful state change. -->
-<!-- Last updated: 2026-06-15 — production hardening: JWT/RBAC, key HMAC+rotation, CONFLICT, race-fix; контур green (61/61). -->
+<!-- Last updated: 2026-06-16 — Allure-отчётность подключена (epic/feature/story/severity/steps/attachments); контур green (61/61). -->
 <!-- Obsidian hub: этот файл ссылается на все крупные доки; все доки ссылаются сюда. -->
 
 ## Цель продукта
@@ -36,10 +36,11 @@ Backend-сервис из трёх REST API-модулей: (1) справочн
 ## Текущее состояние
 Реализация + production hardening: backend FastAPI (слои `api/services/repositories/models`) для
 всех трёх модулей + JWT/RBAC (ADR-009), ключи HMAC+pepper+ротация, CONFLICT/409, фикс гонки (§45),
-rate-limit/queue/observability за абстракциями (ADR-010). Весь POM-контур **green (61/61, 0 flaky)**.
-Работа на `feat/next-stage-baseline` (PR #1). Детали — [[IMPLEMENTATION_LEDGER]]. Запуск:
-`uvicorn app.main:app` (логин admin@example.com/admin12345 → JWT; OpenAPI на `/docs`). Фоновый
-воркер: `arq app.worker.WorkerSettings` (при Redis).
+rate-limit/queue/observability за абстракциями (ADR-010). Весь POM-контур **green (61/61, 0 flaky)**
+с Allure-отчётом (epic/feature/story/severity/tags + шаги/вложения из BaseApiClient). Реализация
+влита в `main`; Allure/Postman-доработки — на ветке `feat/allure-reporting`. Детали —
+[[IMPLEMENTATION_LEDGER]]. Запуск: `uvicorn app.main:app` (логин admin@example.com/admin12345 → JWT;
+OpenAPI на `/docs`). Отчёт: `pytest --alluredir=allure-results && allure serve allure-results`.
 
 ## Решённые вопросы (подтверждены заказчиком 2026-06-16)
 Q-1 BIGINT id · Q-2 ключ HMAC+pepper+ротация · Q-3 rate limit за интерфейсом (InMemory/Redis) ·

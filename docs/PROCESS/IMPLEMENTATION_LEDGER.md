@@ -5,6 +5,28 @@
 
 ---
 
+## 2026-06-16 — Allure-отчётность + auth-aware Postman
+
+**Что сделано.** Подключён Allure: каждый тест размечен `epic/feature/story/title/severity` + tag по
+ID требования (через `req()`); шаги и вложения (request params/body/headers с маскированием секретов,
+response status/body) добавляются автоматически в `BaseApiClient`. Аннотирование 6 spec-файлов
+выполнено параллельными агентами; добавлены русские докстринги/комментарии, видимые ассерты обёрнуты
+в `allure.step("Проверка: …")`. `environment.properties` пишется в результаты. CI публикует
+allure-results/allure-report как artifacts; артефакты в `.gitignore`.
+
+Postman-коллекция переведена на auth-aware: collection-auth Bearer `{{token}}`, запрос **Login**
+сохраняет токен, **Create API client** сохраняет `{{api_key}}`, `base_url` по умолчанию
+`http://localhost:8000`; добавлено окружение `postman/local.postman_environment.json`.
+
+**Проверка.** `pytest --alluredir` → **61 passed**; `allure generate` → HTML (index.html); spot-check
+result.json: присутствуют epic/feature/story/severity/tags, шаги (HTTP + «Проверка»), 4 вложения.
+Severity: blocker 6 · critical 21 · normal 26 · minor 8.
+
+**Заметка по эксплуатации.** Postman `ECONNREFUSED 127.0.0.1:8000` = сервис не запущен; поднять
+`uvicorn app.main:app --port 8000` (домен не нужен, всё локально). Swagger — `/docs`.
+
+---
+
 ## 2026-06-15 — Production hardening (best-practice пакет по Q-1..Q-8 + §45/§48/§49/§50)
 
 **Что сделано.** По запросу заказчика реализован полный production-пакет (ADR-009, ADR-010):

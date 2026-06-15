@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-06-16 — Allure-отчётность + auth-aware Postman
+
+**Сделано.** Подключён Allure (epic/feature/story/title/severity + tag по ID; шаги/вложения из
+`BaseApiClient`). 6 spec-файлов размечены параллельными агентами + русские докстринги/комментарии,
+видимые ассерты в `allure.step`. CI публикует отчёт. Postman переведён на auth-aware (login→token,
+create-client→api_key, base_url по умолчанию) + окружение. README/RUNBOOK/tests-README обновлены.
+
+**Проверка.** `pytest --alluredir` → 61 passed; `allure generate` → HTML. Ветка `feat/allure-reporting`.
+
+**Заметка.** Postman `ECONNREFUSED 127.0.0.1:8000` = сервис не запущен (домен не нужен; всё локально).
+
+---
+
 ## 2026-06-16 — Подтверждение дефолтов Q-1..Q-8 и мерж PR #1
 
 **Контекст.** Заказчик подтвердил решения по Q-1..Q-8 (теперь DECIDED, не открытые вопросы) и
