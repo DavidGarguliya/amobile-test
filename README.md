@@ -8,6 +8,27 @@ httpx) — **green, 62/62**, с полным **Allure-отчётом**.
 
 > Источник требований — [docs/PRODUCT/SOURCE_BRIEF.md](docs/PRODUCT/SOURCE_BRIEF.md) (дословная копия).
 
+## Для ревьюера (что смотреть)
+
+Минимальный набор по пунктам сдачи брифа (§6, п.36–42):
+
+| Что | Где |
+|-----|-----|
+| Запуск проекта / структура | [Запуск приложения](#запуск-приложения), [docs/OPERATIONS/RUNBOOK.md](docs/OPERATIONS/RUNBOOK.md) |
+| Swagger / OpenAPI | `http://localhost:8000/docs`, [docs/openapi.json](docs/openapi.json) |
+| Postman collection | [postman/amobile-test.postman_collection.json](postman/amobile-test.postman_collection.json) |
+| Примеры запросов/ответов | [docs/API_EXAMPLES.md](docs/API_EXAMPLES.md) |
+| Требования (трассировка FR/NFR) | [docs/PRODUCT/REQUIREMENTS.md](docs/PRODUCT/REQUIREMENTS.md) |
+| Принятые тех. решения + что улучшил бы | [docs/PRODUCT/TECH_DECISIONS.md](docs/PRODUCT/TECH_DECISIONS.md) |
+| Ответы на доп. вопросы §43–52 | [docs/PRODUCT/ADDITIONAL_QUESTIONS.md](docs/PRODUCT/ADDITIONAL_QUESTIONS.md) |
+| Тест-план + матрица покрытия | [docs/QA/TEST_PLAN.md](docs/QA/TEST_PLAN.md) |
+| Архитектура (инварианты, спека, ADR) | [docs/ARCHITECTURE/](docs/ARCHITECTURE/) |
+| Код / тесты | [app/](app/), [tests/](tests/), [alembic/](alembic/) |
+
+> **Можно не смотреть** (внутренняя инженерная обвязка, на запуск/тесты не влияет): `AGENTS.md`,
+> `AGENT_DECISIONS.md`, `ENGINEER_MODE.md`, `CLAUDE.md`, `docs/AGENT_CONTEXT.md`, `docs/PROCESS/*`,
+> `memory/*`. Это операционный контракт и журнал для ИИ-агента, а не часть продукта.
+
 ## Стек
 
 - **Продукт:** Python 3.11+, FastAPI + SQLAlchemy 2 + Alembic, PostgreSQL (SQLite для dev) — см.
